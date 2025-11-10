@@ -680,83 +680,92 @@ from PIL import Image, ImageOps
 import numpy as np
 import json
 
-# This function loads the pre-trained neural network model from a saved file
-# The @st.cache decorator caches the function's output so it's only loaded once
-@st.cache(allow_output_mutation=True)
+@st.cache_resource
 def load_model():
-    model = tf.keras.models.load_model('/content/drive/MyDrive/Emtech FINAL/final_improved_model.keras')
-    return model
+    try:
+        model = tf.keras.models.load_model('/content/drive/MyDrive/Emtech FINAL/final_improved_model.keras')
+        return model
+    except Exception as e:
+        st.error(f"Error loading model: {e}")
+        return None
 
-# This function loads the class information from the saved JSON file
-@st.cache(allow_output_mutation=True)
+@st.cache_resource
 def load_class_info():
-    with open('/content/drive/MyDrive/Emtech FINAL/improved_class_info.json', 'r') as f:
-        class_info = json.load(f)
-    return class_info
+    try:
+        with open('/content/drive/MyDrive/Emtech FINAL/improved_class_info.json', 'r') as f:
+            class_info = json.load(f)
+        return class_info
+    except Exception as e:
+        st.error(f"Error loading class info: {e}")
+        return None
 
-# Load the pre-trained model and class information
+# Load resources
 model = load_model()
 class_info = load_class_info()
+
+if model is None or class_info is None:
+    st.error("Failed to load model or class information. Please check the file paths.")
+    st.stop()
+
 class_names = class_info['class_names']
 IMG_HEIGHT = class_info['img_height']
 IMG_WIDTH = class_info['img_width']
 
-# Display the application title
-st.write("""
-# Dog Breed Classification System
-""")
+# Streamlit app
+st.set_page_config(page_title="Dog Breed Classifier", layout="wide")
 
-# Create a file uploader widget for the user to upload an image file
-file = st.file_uploader("Choose a dog photo from your computer", type=["jpg", "jpeg", "png"])
+st.title("Dog Breed Classification System")
+st.write("Upload an image of a dog to identify its breed from 70 different breeds.")
 
-# This function takes the uploaded image data and the pre-trained model as input,
-# preprocesses the image, and makes a prediction using the model
-def import_and_predict(image_data, model):
-    # Resize the image to match the model's expected input size
-    size = (IMG_WIDTH, IMG_HEIGHT)
-    image = ImageOps.fit(image_data, size, Image.LANCZOS)
+# File uploader
+uploaded_file = st.file_uploader("Choose a dog photo", type=["jpg", "jpeg", "png"])
 
-    # Convert the image to a numpy array
-    img = np.asarray(image)
+def preprocess_image(image):
+    """Preprocess image for the model"""
+    if image.mode != 'RGB':
+        image = image.convert('RGB')
+    
+    image = ImageOps.fit(image, (IMG_WIDTH, IMG_HEIGHT), Image.LANCZOS)
+    img_array = np.array(image)
+    img_array = tf.keras.applications.efficientnet.preprocess_input(img_array)
+    img_array = np.expand_dims(img_array, axis=0)
+    
+    return img_array
 
-    # Preprocess the image for EfficientNet model (scale pixel values appropriately)
-    img = tf.keras.applications.efficientnet.preprocess_input(img)
+def predict_breed(image, model):
+    """Make prediction and return results"""
+    processed_image = preprocess_image(image)
+    predictions = model.predict(processed_image, verbose=0)
+    return predictions[0]
 
-    # Add a batch dimension to the image array
-    img_reshape = img[np.newaxis, ...]
+if uploaded_file is not None:
+    col1, col2 = st.columns([1, 1])
+    
+    with col1:
+        st.subheader("Uploaded Image")
+        image = Image.open(uploaded_file)
+        st.image(image, use_column_width=True)
+    
+    with col2:
+        with st.spinner('Analyzing image...'):
+            predictions = predict_breed(image, model)
+        
+        top_idx = np.argmax(predictions)
+        top_confidence = predictions[top_idx]
+        top_breed = class_names[top_idx]
+        
+        st.subheader("Prediction Result")
+        st.markdown(f"**Predicted Breed:** {top_breed}")
+        st.markdown(f"**Confidence:** {top_confidence:.2%}")
+        
+        # Show top 5 predictions
+        st.subheader("Top 5 Predictions")
+        top_5_indices = np.argsort(predictions)[-5:][::-1]
+        
+        for i, idx in enumerate(top_5_indices):
+            breed = class_names[idx]
+            confidence = predictions[idx]
+            st.write(f"{i+1}. {breed}: {confidence:.2%}")
 
-    # Make prediction using the pre-trained model
-    prediction = model.predict(img_reshape)
-
-    return prediction
-
-if file is None:
-    st.text("Please upload an image file")
 else:
-    # Open and display the uploaded image
-    image = Image.open(file)
-    st.image(image, use_column_width=True)
-
-    # Make prediction on the uploaded image
-    prediction = import_and_predict(image, model)
-
-    # The class_names list contains the names of all 70 dog breeds that the model can predict
-    class_names = class_info['class_names']
-
-    # Find the predicted class with the highest probability and get the corresponding breed name
-    string = "PREDICTED BREED: " + class_names[np.argmax(prediction)]
-
-    # Display the predicted dog breed as output
-    st.success(string)
-
-    # Display confidence score
-    confidence = np.max(prediction)
-    st.info(f"Confidence: {confidence:.4f} ({confidence*100:.2f}%)")
-
-    # Show top 3 predictions
-    st.subheader("Top 3 Predictions:")
-    top_3_indices = np.argsort(prediction[0])[-3:][::-1]
-    for i, idx in enumerate(top_3_indices):
-        breed_name = class_names[idx]
-        breed_confidence = prediction[0][idx]
-        st.write(f"{i+1}. {breed_name}: {breed_confidence:.4f}")
+    st.info("Please upload an image to get started.")
