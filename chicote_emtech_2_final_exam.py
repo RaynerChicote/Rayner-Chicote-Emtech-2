@@ -583,8 +583,6 @@ plt.show()
 
 print(f"\n Training completed successfully! Your model is ready for use! ")
 
-# Install Streamlit
-!pip install streamlit
 
 import streamlit as st
 import tensorflow as tf
