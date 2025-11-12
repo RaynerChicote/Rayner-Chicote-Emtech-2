@@ -9,7 +9,7 @@ st.write("Upload a rice leaf image to detect its condition.")
 
 # --- Google Drive model setup ---
 model_file = "rice_leaf_best_model.h5"  # or .keras if you saved in that format
-file_id = "1Sz-aFfWFujWSiGH2Iu1wsDpTvvsYAHtN"
+file_id = "1Dgkw4ZDlcJzwrcYr5BHZoJv2uKHkwKh3"
 drive_url = f"https://drive.google.com/uc?id={file_id}"
 
 # --- Download model from Google Drive if not found ---
