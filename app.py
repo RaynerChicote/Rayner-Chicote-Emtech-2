@@ -2,21 +2,29 @@ import streamlit as st
 import tensorflow as tf
 from tensorflow.keras.preprocessing import image
 import numpy as np
-import json
+import json, os, gdown
 
-# App title and intro
 st.title("🌾 Rice Leaf Disease Detection App")
 st.write("Upload an image of a rice leaf to detect if it is healthy or diseased.")
 
+# Google Drive model link setup
+model_file = "rice_leaf_best_model.h5"
+file_id = "1aSs0w57K4_QL-K0uVxSmQASj3HlcHQzM"  # e.g., "1AbCDEFGHIJKLmnOPq"
+drive_url = f"https://drive.google.com/file/d/1aSs0w57K4_QL-K0uVxSmQASj3HlcHQzM/view?usp=sharing"
+
+# Download model from Drive if not found
+if not os.path.exists(model_file):
+    st.info("Downloading model from Google Drive...")
+    gdown.download(drive_url, model_file, quiet=False)
+
 # Load model and class names
-model = tf.keras.models.load_model("rice_leaf_best_model.h5")
+model = tf.keras.models.load_model(model_file)
 
 with open("class_names.json", "r") as f:
     class_names = json.load(f)
 
-# Upload image
-uploaded_file = st.file_uploader("Upload a leaf image...", type=["jpg", "jpeg", "png"])
-
+# Image upload and prediction
+uploaded_file = st.file_uploader("Upload a leaf image...", type=["jpg","jpeg","png"])
 if uploaded_file is not None:
     img = image.load_img(uploaded_file, target_size=(224, 224))
     st.image(img, caption="Uploaded Image", use_column_width=True)
@@ -31,15 +39,3 @@ if uploaded_file is not None:
 
     st.success(f"**Prediction:** {predicted_class}")
     st.info(f"**Confidence:** {confidence:.2f}%")
-
-import gdown, os
-
-model_path = "rice_leaf_best_model.h5"
-
-# Download model from Google Drive if not found
-if not os.path.exists(model_path):
-    file_id = "1AbCDEFGHIJKLmnOPq"  # <-- put your Drive file ID here
-    gdown.download(f"https://drive.google.com/uc?id=1aSs0w57K4_QL-K0uVxSmQASj3HlcHQzM", model_path, quiet=False)
-
-import tensorflow as tf
-model = tf.keras.models.load_model(model_path)
