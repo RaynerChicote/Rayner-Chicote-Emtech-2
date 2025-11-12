@@ -31,3 +31,15 @@ if uploaded_file is not None:
 
     st.success(f"**Prediction:** {predicted_class}")
     st.info(f"**Confidence:** {confidence:.2f}%")
+
+import gdown, os
+
+model_path = "rice_leaf_best_model.h5"
+
+# Download model from Google Drive if not found
+if not os.path.exists(model_path):
+    file_id = "1AbCDEFGHIJKLmnOPq"  # <-- put your Drive file ID here
+    gdown.download(f"https://drive.google.com/uc?id=1aSs0w57K4_QL-K0uVxSmQASj3HlcHQzM", model_path, quiet=False)
+
+import tensorflow as tf
+model = tf.keras.models.load_model(model_path)
