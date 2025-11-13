@@ -52,8 +52,12 @@ if uploaded_file:
     img_array = image.img_to_array(img) / 255.0
     img_array = np.expand_dims(img_array, axis=0)
 
+st.write("Number of inputs:", len(model.inputs))
+st.write("Input shapes:", [i.shape for i in model.inputs])
+
     # Predict
-    prediction = model.predict(img_array)[0][0]  # single value for sigmoid
+    prediction = model.predict([img_array, img_array])[0][0]
+  # single value for sigmoid
     if prediction > 0.5:
         predicted_class = 'good'
         confidence = prediction * 100
