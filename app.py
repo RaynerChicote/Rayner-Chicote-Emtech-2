@@ -65,8 +65,8 @@ else:
         predicted_class = 'defective'
         confidence = (1 - prediction) * 100
 
-    st.success(f"### Prediction: {predicted_class.upper()}")
-    st.write(f"Confidence: {confidence:.2f}%")
+st.success(f"### Prediction: {predicted_class.upper()}")
+st.write(f"Confidence: {confidence:.2f}%")
 else:
     st.info("📸 Please upload a tyre image to get started.")
 
