@@ -8,7 +8,7 @@ from io import BytesIO
 # ------------------------------
 # Constants
 # ------------------------------
-MODEL_URL = "YOUR_H5_MODEL_URL_HERE"  # replace with your link
+MODEL_URL = "https://drive.google.com/file/d/17VK-PaP62fJqtP2FvFmQL4eAazyz5C9R/view?usp=sharing"  # replace with your link
 
 # ------------------------------
 # Load model with caching
