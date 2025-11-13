@@ -74,4 +74,4 @@ else:
 # 🧾 Footer
 # ---------------------------------------------------------
 st.markdown("---")
-st.caption("Developed by [Your Name] | Tyre Quality Classifier using Transfer Learning")
+st.caption("Developed by Rayner Chicote | Tyre Quality Classifier using Transfer Learning")
