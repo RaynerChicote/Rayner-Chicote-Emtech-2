@@ -2,47 +2,76 @@ import streamlit as st
 import tensorflow as tf
 from tensorflow.keras.preprocessing import image
 import numpy as np
-import requests
+import PIL
+import gdown
 import os
 
-# ------------------------------
-# Constants
-# ------------------------------
-MODEL_URL = "https://drive.google.com/file/d/17VK-PaP62fJqtP2FvFmQL4eAazyz5C9R/view?usp=sharing"  # replace with your link
-MODEL_LOCAL_PATH = "model.h5"
+# ---------------------------------------------------------
+# 🔗 Google Drive Model Download
+# ---------------------------------------------------------
+# Replace this with YOUR actual Google Drive file ID:
+# (Example link: https://drive.google.com/file/d/1AbCdEfGhIJkl/view?usp=sharing)
+# File ID is: 1AbCdEfGhIJkl
+MODEL_FILE_ID = "17VK-PaP62fJqtP2FvFmQL4eAazyz5C9R"
+MODEL_PATH = "tyre_quality_model.h5"
 
-# ------------------------------
-# Download and cache the model
-# ------------------------------
+# Download model from Google Drive if not already present
+if not os.path.exists(MODEL_PATH):
+    with st.spinner("Downloading model from Google Drive..."):
+        url = f"https://drive.google.com/uc?id={MODEL_FILE_ID}"
+        gdown.download(url, MODEL_PATH, quiet=False)
+    st.success("✅ Model downloaded successfully!")
+
+# ---------------------------------------------------------
+# 🧠 Load Model (cached for speed)
+# ---------------------------------------------------------
 @st.cache_resource
-def load_model_from_url(url, local_path):
-    if not os.path.exists(local_path):
-        # download model if not exists
-        response = requests.get(url)
-        response.raise_for_status()
-        with open(local_path, "wb") as f:
-            f.write(response.content)
-    return tf.keras.models.load_model(local_path)
+def load_model():
+    model = tf.keras.models.load_model(MODEL_PATH)
+    return model
 
-model = load_model_from_url(MODEL_URL, MODEL_LOCAL_PATH)
+model = load_model()
 
-# ------------------------------
-# Streamlit UI
-# ------------------------------
-st.title("Image Prediction App")
+# ---------------------------------------------------------
+# 🏷️ Class Labels (update based on your dataset)
+# ---------------------------------------------------------
+# Example: ["bad", "good", "worn"]
+CLASS_NAMES = ['defective', 'good']  # 🔧 change to your actual classes
 
-uploaded_file = st.file_uploader("Upload an image", type=["jpg", "jpeg", "png"])
+# ---------------------------------------------------------
+# 🌟 Streamlit App UI
+# ---------------------------------------------------------
+st.title("🛞 Tyre Quality Detection App")
+st.write("Upload a tyre image and let the deep learning model predict its quality.")
+
+uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
 
 if uploaded_file is not None:
-    # Load image
-    img = image.load_img(uploaded_file, target_size=(224, 224))  # adjust target_size
-    img_array = image.img_to_array(img)
-    img_array = np.expand_dims(img_array, axis=0)  # add batch dimension
-    img_array = img_array / 255.0  # normalize if needed
+    # Display uploaded image
+    img = PIL.Image.open(uploaded_file).convert("RGB")
+    st.image(img, caption="Uploaded Tyre Image", use_column_width=True)
+    st.write("Processing...")
 
-    # Make prediction
-    try:
-        prediction = model.predict(img_array)[0][0]  # for single-output sigmoid
-        st.write(f"Prediction (sigmoid output): {prediction:.4f}")
-    except Exception as e:
-        st.error(f"Error during prediction: {e}")
+    # Preprocess image
+    img = img.resize((224, 224))
+    img_array = image.img_to_array(img) / 255.0
+    img_array = np.expand_dims(img_array, axis=0)
+
+    # Predict
+    prediction = model.predict(img_array)
+    predicted_class = CLASS_NAMES[np.argmax(prediction)]
+    confidence = np.max(prediction) * 100
+
+    # Display result
+    st.success(f"### 🏁 Prediction: **{predicted_class.upper()}**")
+    st.progress(float(confidence) / 100)
+    st.write(f"Confidence: **{confidence:.2f}%**")
+
+else:
+    st.info("📸 Please upload a tyre image to begin.")
+
+# ---------------------------------------------------------
+# 🧾 Footer
+# ---------------------------------------------------------
+st.markdown("---")
+st.caption("Developed by [Your Name] | Tyre Quality Classifier using Transfer Learning")
