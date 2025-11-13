@@ -2,73 +2,45 @@ import streamlit as st
 import tensorflow as tf
 from tensorflow.keras.preprocessing import image
 import numpy as np
-from PIL import Image
-import gdown
-import os
+import requests
+from io import BytesIO
 
 # ------------------------------
-# Google Drive download
+# Constants
 # ------------------------------
-MODEL_FILE_ID = "17VK-PaP62fJqtP2FvFmQL4eAazyz5C9R"  # replace with your .h5 ID
-MODEL_PATH = "tyre_quality_model.h5"
-
-if not os.path.exists(MODEL_PATH):
-    with st.spinner("Downloading model from Google Drive..."):
-        url = f"https://drive.google.com/uc?id={MODEL_FILE_ID}"
-        gdown.download(url, MODEL_PATH, quiet=False)
-    st.success("✅ Model downloaded successfully!")
+MODEL_URL = "YOUR_H5_MODEL_URL_HERE"  # replace with your link
 
 # ------------------------------
-# Load model
+# Load model with caching
 # ------------------------------
 @st.cache_resource
-def load_model():
-    return tf.keras.models.load_model(MODEL_PATH)
+def load_model_from_url(url):
+    response = requests.get(url)
+    response.raise_for_status()  # raise error if download fails
+    model_file = BytesIO(response.content)
+    return tf.keras.models.load_model(model_file)
 
-@st.cache_resource
-def load_model():
-    return tf.keras.models.load_model(MODEL_PATH)
-
-
-# ------------------------------
-# Class labels
-# ------------------------------
-CLASS_NAMES = ['defective', 'good']
+model = load_model_from_url(MODEL_URL)
 
 # ------------------------------
 # Streamlit UI
 # ------------------------------
-st.title("🛞 Tyre Quality Detector")
-st.write("Upload a tyre image and the model will predict if it is defective or good.")
+st.title("Image Prediction App")
 
-uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
+uploaded_file = st.file_uploader("Upload an image", type=["jpg", "jpeg", "png"])
 
-if uploaded_file:
-    img = Image.open(uploaded_file).convert("RGB")
-    st.image(img, caption="Uploaded Image", use_column_width=True)
+if uploaded_file is not None:
+    # Load image
+    img = image.load_img(uploaded_file, target_size=(224, 224))  # adjust target_size to your model
+    img_array = image.img_to_array(img)
+    img_array = np.expand_dims(img_array, axis=0)  # make batch dimension
+    img_array = img_array / 255.0  # normalize if needed
 
-    # Preprocess
-    img = img.resize((224, 224))
-    img_array = image.img_to_array(img) / 255.0
-    img_array = np.expand_dims(img_array, axis=0)
-
-st.write("Number of inputs:", len(model.inputs))
-st.write("Input shapes:", [i.shape for i in model.inputs])
-
-    # Predict
-prediction = model.predict([img_array, img_array])[0][0]
-  # single value for sigmoid
-if prediction > 0.5:
-        predicted_class = 'good'
-        confidence = prediction * 100
-else:
-        predicted_class = 'defective'
-        confidence = (1 - prediction) * 100
-
-st.success(f"### Prediction: {predicted_class.upper()}")
-st.write(f"Confidence: {confidence:.2f}%")
-    else:
-    st.info("📸 Please upload a tyre image to get started.")
-
-st.markdown("---")
-st.caption("Developed by [Your Name] | Tyre Quality Classifier using Transfer Learning")
+    # ------------------------------
+    # Make prediction
+    # ------------------------------
+    try:
+        prediction = model.predict(img_array)[0][0]  # single value for sigmoid
+        st.write(f"Prediction (sigmoid output): {prediction:.4f}")
+    except Exception as e:
+        st.error(f"Error during prediction: {e}")
