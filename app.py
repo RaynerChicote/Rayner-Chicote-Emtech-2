@@ -25,7 +25,10 @@ if not os.path.exists(MODEL_PATH):
 def load_model():
     return tf.keras.models.load_model(MODEL_PATH)
 
-model = load_model()
+@st.cache_resource
+def load_model():
+    return tf.keras.models.load_model(MODEL_PATH)
+
 
 # ------------------------------
 # Class labels
