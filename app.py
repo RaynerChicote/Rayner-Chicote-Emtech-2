@@ -9,7 +9,7 @@ import os
 # ------------------------------
 # Google Drive download
 # ------------------------------
-MODEL_FILE_ID = "YOUR_GOOGLE_DRIVE_FILE_ID"  # replace with your .h5 ID
+MODEL_FILE_ID = "17VK-PaP62fJqtP2FvFmQL4eAazyz5C9R"  # replace with your .h5 ID
 MODEL_PATH = "tyre_quality_model.h5"
 
 if not os.path.exists(MODEL_PATH):
