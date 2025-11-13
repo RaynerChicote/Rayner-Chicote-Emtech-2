@@ -36,7 +36,7 @@ model = load_model()
 # 🏷️ Class Labels (update based on your dataset)
 # ---------------------------------------------------------
 # Example: ["bad", "good", "worn"]
-CLASS_NAMES = ['bad', 'good', 'worn']  # 🔧 change to your actual classes
+CLASS_NAMES = ['defective', 'good']  # 🔧 change to your actual classes
 
 # ---------------------------------------------------------
 # 🌟 Streamlit App UI
