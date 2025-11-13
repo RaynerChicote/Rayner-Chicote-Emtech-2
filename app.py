@@ -67,7 +67,7 @@ else:
 
 st.success(f"### Prediction: {predicted_class.upper()}")
 st.write(f"Confidence: {confidence:.2f}%")
-else:
+    else:
     st.info("📸 Please upload a tyre image to get started.")
 
 st.markdown("---")
