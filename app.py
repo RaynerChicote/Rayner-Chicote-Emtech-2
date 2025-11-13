@@ -61,7 +61,7 @@ prediction = model.predict([img_array, img_array])[0][0]
 if prediction > 0.5:
         predicted_class = 'good'
         confidence = prediction * 100
-    else:
+else:
         predicted_class = 'defective'
         confidence = (1 - prediction) * 100
 
