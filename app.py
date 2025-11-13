@@ -56,7 +56,7 @@ st.write("Number of inputs:", len(model.inputs))
 st.write("Input shapes:", [i.shape for i in model.inputs])
 
     # Predict
-        prediction = model.predict([img_array, img_array])[0][0]
+prediction = model.predict([img_array, img_array])[0][0]
   # single value for sigmoid
     if prediction > 0.5:
         predicted_class = 'good'
