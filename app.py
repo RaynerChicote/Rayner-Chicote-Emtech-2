@@ -1,42 +1,31 @@
-def get_disease_info(disease_name):
-    """Get information about the detected disease"""
-    # Clean the disease name
-    disease_name = disease_name.lower().replace('_', ' ').title()
-    
-    disease_info = {
-        "Brown Spot": {
-            "symptoms": "Small, oval brown spots on leaves, may have yellow halo",
-            "treatment": "Use resistant varieties, proper fertilization, fungicide application",
-            "prevention": "Crop rotation, proper field sanitation"
-        },
-        "Bacterial Leaf Blight": {
-            "symptoms": "Water-soaked lesions that turn yellow and then white",
-            "treatment": "Copper-based bactericides, antibiotic sprays",
-            "prevention": "Use clean seeds, avoid waterlogged conditions"
-        },
-        "Leaf Smut": {
-            "symptoms": "Black powdery masses on leaves, reduced plant vigor",
-            "treatment": "Fungicide application, remove infected plants",
-            "prevention": "Crop rotation, field sanitation"
-        },
-        "Healthy": {
-            "symptoms": "No visible symptoms, green and vibrant leaves",
-            "treatment": "Maintain current practices",
-            "prevention": "Regular monitoring, proper nutrition"
-        }
-    }
-    
-    # Try exact match first
-    if disease_name in disease_info:
-        return disease_info[disease_name]
-    
-    # Try to find the closest match
-    for key in disease_info.keys():
-        if any(word in disease_name.lower() for word in key.lower().split()):
-            return disease_info[key]
-    
-    return {
-        "symptoms": "Information not available",
-        "treatment": "Consult agricultural expert",
-        "prevention": "Regular monitoring and proper cultivation practices"
-    }
+import streamlit as st
+import tensorflow as tf
+from tensorflow.keras.preprocessing import image
+import numpy as np
+import PIL
+
+# Load the model
+MODEL_PATH = "tyre_quality_model.h5"
+model = tf.keras.models.load_model(MODEL_PATH)
+
+# Class labels
+class_names = ['bad', 'good', 'worn']  # Update based on your dataset folders
+
+st.title("🛞 Tyre Quality Detection App")
+st.write("Upload a tyre image to predict its quality.")
+
+uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
+
+if uploaded_file is not None:
+    img = PIL.Image.open(uploaded_file).convert("RGB")
+    st.image(img, caption="Uploaded Image", use_column_width=True)
+
+    img = img.resize((224, 224))
+    img_array = image.img_to_array(img) / 255.0
+    img_array = np.expand_dims(img_array, axis=0)
+
+    prediction = model.predict(img_array)
+    predicted_class = class_names[np.argmax(prediction)]
+    confidence = np.max(prediction) * 100
+
+    st.success(f"Prediction: **{predicted_class.upper()}** ({confidence:.2f}% confidence)")
