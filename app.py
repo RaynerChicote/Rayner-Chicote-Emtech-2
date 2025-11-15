@@ -30,9 +30,9 @@ def load_model():
 model = load_model()
 
 # ---------------------------------------------------------
-# 🏷️ Class Labels (update based on your dataset)
+# 🏷️ Class Labels
 # ---------------------------------------------------------
-CLASS_NAMES = ['defective', 'good']  # 🔧 change to your actual classes
+CLASS_NAMES = ['defective', 'good']
 
 # ---------------------------------------------------------
 # 🌟 Streamlit App UI
@@ -40,36 +40,50 @@ CLASS_NAMES = ['defective', 'good']  # 🔧 change to your actual classes
 st.title("🛞 Tyre Quality Detection App")
 st.write("Upload a tyre image and let the deep learning model predict its quality.")
 
-# Sidebar content with tyre quality information
-with st.sidebar:
-    st.markdown("### 🔍 Tyre Quality Information")
-    st.write("""
-    This model predicts the quality of a tyre based on its image, classifying it as either **Good** or **Defective**.
-    Below is some important information on both categories:
+# ---------------------------------------------------------
+# 📚 Tyre Quality Information (Now Always Visible)
+# ---------------------------------------------------------
+st.markdown("## 🔍 Tyre Quality Information")
+st.write("""
+This model predicts the quality of a tyre based on its image, classifying it as either **Good** or **Defective**.  
+Below is some important information on both categories:
 
-    #### ✅ **Good Tyre Quality**:
-    A **good** tyre is in proper condition for safe driving. It ensures optimal performance and safety on the road.
-    - **Key Characteristics of Good Tyres**:
-        - Proper tread depth (provides adequate grip).
-        - Even wear with no significant damage.
-        - No visible cracks, cuts, or punctures.
-    - **Maintenance Tips**:
-        - Keep tyres inflated to the correct pressure.
-        - Regularly check tread depth and look for any visible defects.
-        - Rotate tyres every 6,000-8,000 miles.
+---
 
-    #### ⚠️ **Defective Tyre Quality**:
-    A **defective** tyre poses a safety risk and must be replaced immediately.
-    - **Common Defects**:
-        - Bald or worn-out tread (poor grip).
-        - Bulges in the sidewall (usually caused by hitting an obstacle).
-        - Cuts, punctures, or cracks in the rubber.
-    - **Immediate Action**:
-        - Replace the defective tyre immediately to avoid safety hazards.
-        - Inspect tyres regularly for wear or damage to ensure your safety on the road.
-    """)
+### ✅ **Good Tyre Quality**
+A **good** tyre is in proper condition for safe driving.
 
-# File uploader
+**Key Characteristics of Good Tyres:**
+- Proper tread depth (provides adequate grip).
+- Even wear with no significant damage.
+- No visible cracks, cuts, or punctures.
+
+**Maintenance Tips:**
+- Keep tyres inflated to the correct pressure.
+- Regularly check tread depth and inspect for any defects.
+- Rotate tyres every 6,000–8,000 miles.
+
+---
+
+### ⚠️ **Defective Tyre Quality**
+A **defective** tyre poses a safety risk and must be replaced immediately.
+
+**Common Defects:**
+- Bald or worn-out tread.
+- Bulges in the sidewall.
+- Cuts, punctures, or cracks in the rubber.
+
+**Immediate Action:**
+- Replace the defective tyre immediately.
+- Do not drive on defective tyres.
+- Perform routine tyre inspections for safety.
+
+---
+""")
+
+# ---------------------------------------------------------
+# 📸 File uploader
+# ---------------------------------------------------------
 uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
 
 if uploaded_file is not None:
@@ -97,36 +111,34 @@ if uploaded_file is not None:
     if predicted_class == 'good':
         st.markdown("### ✅ Good Tyre Quality")
         st.write("""
-            A **good** tyre indicates that it is in proper condition for use on the road.
-            These tyres are free of significant defects, wear, or damage that could compromise safety.
+            A **good** tyre indicates proper condition for safe use.
             
-            **Key characteristics of good tyres:**
-            - Proper tread depth (adequate grip on the road)
-            - No visible punctures or bulges
-            - Even wear pattern
-            - No cracks or cuts in the rubber
-            
-            **Maintenance Tips for Tyre Longevity:**
-            - Regularly check tyre pressure (under or overinflated tyres can wear unevenly).
-            - Rotate tyres every 6,000 to 8,000 miles to ensure even wear.
-            - Inspect tyres for cuts, cracks, or bulges, and replace if necessary.
+            **Characteristics:**
+            - Adequate tread depth  
+            - No punctures or bulges  
+            - Even wear  
+            - No visible cracks  
+
+            **Maintenance Tips:**
+            - Check tyre pressure often  
+            - Rotate tyres for even wear  
+            - Inspect tyres regularly  
         """)
     else:
         st.markdown("### ⚠️ Defective Tyre Quality")
         st.write("""
-            A **defective** tyre indicates that it may have issues that could compromise the safety of the vehicle. 
-            This includes visible defects like cuts, bulges, punctures, or worn-out treads.
+            A **defective** tyre may have serious issues like cuts, bulges, or worn-out tread.
             
-            **Common defects in tyres:**
-            - **Bald tyres** (tread is worn down)
-            - **Sidewall bulges** (often caused by impact with objects on the road)
-            - **Punctures or cuts** (damage that can lead to air loss)
-            - **Cracking or splitting** (indicating rubber degradation)
-            
-            **Immediate Action Required:**
-            - **Replace the tyre** immediately to ensure your safety on the road.
-            - **Avoid driving on defective tyres**, as they could lead to tyre blowouts or loss of control.
-            - Regularly inspect tyres for signs of wear or damage.
+            **Common Defects:**
+            - Bald tyres  
+            - Sidewall bulges  
+            - Punctures or cuts  
+            - Rubber cracks  
+
+            **Immediate Action:**
+            - Replace the tyre immediately  
+            - Avoid driving on defective tyres  
+            - Inspect all tyres routinely  
         """)
 else:
     st.info("📸 Please upload a tyre image to begin.")
