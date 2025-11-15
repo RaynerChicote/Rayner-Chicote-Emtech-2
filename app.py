@@ -9,9 +9,6 @@ import os
 # ---------------------------------------------------------
 # 🔗 Google Drive Model Download
 # ---------------------------------------------------------
-# Replace this with YOUR actual Google Drive file ID:
-# (Example link: https://drive.google.com/file/d/1AbCdEfGhIJkl/view?usp=sharing)
-# File ID is: 1AbCdEfGhIJkl
 MODEL_FILE_ID = "17VK-PaP62fJqtP2FvFmQL4eAazyz5C9R"
 MODEL_PATH = "tyre_quality_model.h5"
 
@@ -35,7 +32,6 @@ model = load_model()
 # ---------------------------------------------------------
 # 🏷️ Class Labels (update based on your dataset)
 # ---------------------------------------------------------
-# Example: ["bad", "good", "worn"]
 CLASS_NAMES = ['defective', 'good']  # 🔧 change to your actual classes
 
 # ---------------------------------------------------------
@@ -67,6 +63,41 @@ if uploaded_file is not None:
     st.progress(float(confidence) / 100)
     st.write(f"Confidence: **{confidence:.2f}%**")
 
+    # Add Tyre Quality Information based on the Prediction
+    if predicted_class == 'good':
+        st.markdown("### ✅ Good Tyre Quality")
+        st.write("""
+            A **good** tyre indicates that it is in proper condition for use on the road.
+            These tyres are free of significant defects, wear, or damage that could compromise safety.
+            
+            **Key characteristics of good tyres:**
+            - Proper tread depth (adequate grip on the road)
+            - No visible punctures or bulges
+            - Even wear pattern
+            - No cracks or cuts in the rubber
+            
+            **Maintenance Tips for Tyre Longevity:**
+            - Regularly check tyre pressure (under or overinflated tyres can wear unevenly).
+            - Rotate tyres every 6,000 to 8,000 miles to ensure even wear.
+            - Inspect tyres for cuts, cracks, or bulges, and replace if necessary.
+        """)
+    else:
+        st.markdown("### ⚠️ Defective Tyre Quality")
+        st.write("""
+            A **defective** tyre indicates that it may have issues that could compromise the safety of the vehicle. 
+            This includes visible defects like cuts, bulges, punctures, or worn-out treads.
+            
+            **Common defects in tyres:**
+            - **Bald tyres** (tread is worn down)
+            - **Sidewall bulges** (often caused by impact with objects on the road)
+            - **Punctures or cuts** (damage that can lead to air loss)
+            - **Cracking or splitting** (indicating rubber degradation)
+            
+            **Immediate Action Required:**
+            - **Replace the tyre** immediately to ensure your safety on the road.
+            - **Avoid driving on defective tyres**, as they could lead to tyre blowouts or loss of control.
+            - Regularly inspect tyres for signs of wear or damage.
+        """)
 else:
     st.info("📸 Please upload a tyre image to begin.")
 
